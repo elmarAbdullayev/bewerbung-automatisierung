@@ -22,4 +22,4 @@ Automatisierter Bewerbungsprozess mit n8n, React, PostgreSQL und Groq AI.
 6. E-Mail-Versand an HR
 
 ## Screenshots
-[screenshot buraya]
+![n8n Workflow](https://github.com/user-attachments/assets/5aa35c95-88e4-497e-805e-c5527afdb5d3)
