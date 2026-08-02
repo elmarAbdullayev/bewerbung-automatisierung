@@ -1,0 +1,83 @@
+.parent {
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  margin: 5rem auto;
+  padding: 2rem;
+  gap: 15px;
+
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+
+.parent input,
+.parent select {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: 0.3s;
+}
+
+
+.parent input:focus,
+.parent select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 5px rgba(37,99,235,0.3);
+}
+
+
+.parent label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+
+.parent div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+
+.parent button {
+  margin-top: 10px;
+  padding: 12px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: white;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+
+.parent button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+
+.parent button:active {
+  transform: translateY(0);
+}
+
+
+@media (max-width: 500px) {
+
+  .parent {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+}

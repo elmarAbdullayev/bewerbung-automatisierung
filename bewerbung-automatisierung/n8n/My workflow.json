@@ -1,0 +1,2724 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "automatisierung",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3776,
+        -912
+      ],
+      "id": "85548e9a-18d1-462f-8414-eea42a43f9d0",
+      "name": "Webhook",
+      "webhookId": "4f11fe57-d233-46e1-88b0-a11ca0ff78ef"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "81d7c7f6-d2d2-47fc-bcb8-433ba848885d",
+              "leftValue": "={{ $json.body.vorname }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "4ff4c65c-f284-473e-8ebb-1ca94e552fdc",
+              "leftValue": "={{ $json.body.nachname }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "0ef62092-bb50-4524-b2e3-7cc172c6fbf0",
+              "leftValue": "={{ $json.body.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e71e8b8c-6c14-435c-a027-029771c624d3",
+              "leftValue": "={{ $json.body.Telefonnummer }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "0f38cb2e-3f42-4686-a172-33541beaa3b3",
+              "leftValue": "={{ $json.body.position }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a7ca0a86-35fe-4fa5-b7a3-ea87340ca9aa",
+              "leftValue": "={{ $json.body.sprache }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3360,
+        -912
+      ],
+      "id": "0a74af09-8b3e-48b2-8c8b-714ffe51f2b4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n\"error\": \"Bad Request\",\n \"message\": \"Required fields are missing.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -3152,
+        -704
+      ],
+      "id": "99c55c5e-7426-478d-82d6-ad86ffdb2403",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const email = $json.body.email\n\nconst isValidEmail  = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)\n\nreturn [{json:{\n  ...$json,\n  status:isValidEmail\n}}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3008,
+        -928
+      ],
+      "id": "e5f4b0c6-8e12-42db-915e-f992a6585858",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS ( SELECT 1 FROM candidates WHERE email = '{{ $json.body.email }}' ) AS email_exists;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2288,
+        -944
+      ],
+      "id": "bb97e678-04b5-42f2-9e7d-6a6ac7faf700",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "jIWmUPwt31JxS2Qc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6ce15cb9-ea86-4289-ac7e-cf823cec8936",
+              "leftValue": "={{ $json.email_exists }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1728,
+        -960
+      ],
+      "id": "02ee9f12-9e33-4d11-a096-2cd11fc36a00",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"error\": \"Email existiert bereits.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1520,
+        -1120
+      ],
+      "id": "1dac414e-5ba2-4d19-a7a8-dcf3e90ca87d",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const token = Math.random().toString(36).substring(2) \n+ Date.now().toString(36);\n\nconst expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);\n\nreturn [{\n  json:{\n    ...$json,\n    verification_token: token,\n    verification_expires_at: expiresAt.toISOString()\n\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1472,
+        -816
+      ],
+      "id": "837489a9-cfd8-45a6-babe-de62321cec78",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "candidates",
+          "mode": "list",
+          "cachedResultName": "candidates"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_verified": "={{ false }}",
+            "experience_years": 0,
+            "vorname": "={{ $json.vorname }}",
+            "nachname": "={{ $json.nachname }}",
+            "email": "={{ $json.email }}",
+            "phone": "={{ $json.Telefonnummer }}",
+            "position": "={{ $json.position }}",
+            "language": "={{ $json.sprache }}",
+            "verification_token": "={{ $json.verification_token }}",
+            "verification_expires_at": "={{ $json.verification_expires_at }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "vorname",
+              "displayName": "vorname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nachname",
+              "displayName": "nachname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "position",
+              "displayName": "position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_verified",
+              "displayName": "email_verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verification_token",
+              "displayName": "verification_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verification_expires_at",
+              "displayName": "verification_expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "salary",
+              "displayName": "salary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start_date",
+              "displayName": "start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experience_years",
+              "displayName": "experience_years",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cv_url",
+              "displayName": "cv_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1216,
+        -816
+      ],
+      "id": "6e21c3d9-c125-4edd-8ebd-44d1964dc210",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "jIWmUPwt31JxS2Qc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.language }}",
+                    "rightValue": "Deutsch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "62e8ac89-71f1-4f23-aad9-4a6f109957a3"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8c0f077f-7c2f-463f-a904-136f0884e278",
+                    "leftValue": "={{ $json.language }}",
+                    "rightValue": "Englisch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d656cea4-1649-4794-adc8-dfc6fb5f82f0",
+                    "leftValue": "={{ $json.language }}",
+                    "rightValue": "Spanisch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -912,
+        -832
+      ],
+      "id": "8b69be95-f7c9-4890-a50d-672231ce4e79",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "fromEmail": "formessages77@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Bitte bestätigen Sie Ihre E-Mail-Adresse",
+        "html": "=<p>Hallo,</p>\n\n<p>Vielen Dank für Ihr Interesse an einer Position bei der Luminar Consulting GmbH.</p>\n\n<p>Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie auf den folgenden Button klicken:</p>\n\n<p>\n  <a href=\"http://localhost:5678/webhook-test/token?token={{ $json.verification_token }}\"\n     style=\"padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;\">\n    E-Mail bestätigen\n  </a>\n</p>\n\n<p>Dieser Link ist 24 Stunden gültig.</p>\n\n<p>Mit freundlichen Grüßen<br>\nLuminar Consulting GmbH</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -560,
+        -1120
+      ],
+      "id": "f1990727-5822-498c-b2e1-afedb19a1f97",
+      "name": "Send an Email",
+      "webhookId": "ed15f306-dbeb-41f3-bb4e-860d1f9ce535",
+      "credentials": {
+        "smtp": {
+          "id": "vJYypGbAFHeFOvIU",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "formessages77@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Please verify your email address",
+        "html": "=<p>Hello,</p>\n\n<p>Thank you for your interest in a position at Luminar Consulting GmbH.</p>\n\n<p>Please confirm your email address by clicking the button below:</p>\n\n<p>\n  <a href=\"http://localhost:5678/webhook-test/token?token={{ $json.verification_token }}\"\n     style=\"padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;\">\n    Verify Email\n  </a>\n</p>\n\n<p>This link is valid for 24 hours.</p>\n\n<p>Kind regards,<br>\nLuminar Consulting GmbH</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        -896
+      ],
+      "id": "7e03f769-f090-4dfb-a9f1-e699ea116bed",
+      "name": "Send an Email1",
+      "webhookId": "153086ac-0dde-49a7-a79a-944c61d08faf",
+      "credentials": {
+        "smtp": {
+          "id": "vJYypGbAFHeFOvIU",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "formessages77@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Por favor, confirme su dirección de correo electrónico",
+        "html": "=<p>Hola,</p>\n\n<p>Gracias por su interés en un puesto en Luminar Consulting GmbH.</p>\n\n<p>Por favor, confirme su dirección de correo electrónico haciendo clic en el siguiente botón:</p>\n\n<p>\n  <a href=\"http://localhost:5678/webhook-test/token?token={{ $json.verification_token }}\"\n     style=\"padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;\">\n    Confirmar correo electrónico\n  </a>\n</p>\n\n<p>Este enlace es válido durante 24 horas.</p>\n\n<p>Saludos cordiales,<br>\nLuminar Consulting GmbH</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -496,
+        -688
+      ],
+      "id": "a9bc8028-eb77-4f7b-93fa-af9e54744282",
+      "name": "Send an Email2",
+      "webhookId": "127b915c-67a0-4eb4-8e65-826e83e9b1a6",
+      "credentials": {
+        "smtp": {
+          "id": "vJYypGbAFHeFOvIU",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "token",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3840,
+        -400
+      ],
+      "id": "b8dba796-cf36-4b9b-afcb-48e65bd5000a",
+      "name": "Webhook1",
+      "webhookId": "19a97274-cbe2-40d6-9e7b-5c7eaa137456"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8ef2c887-34f2-4830-85d3-579541abc037",
+              "leftValue": "={{ $json.query.token }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3504,
+        -400
+      ],
+      "id": "74f6640a-c339-483b-98f2-a0ef75ace603",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"Error\": \"400 Bad request\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -3344,
+        -208
+      ],
+      "id": "45f253d0-beee-4f43-9dd8-6b22e54eaf72",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS (\n    SELECT 1\n    FROM candidates\n    WHERE verification_token = '{{ $json.query.token }}'\n) AS token_exists;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -3184,
+        -416
+      ],
+      "id": "dcdd877c-fc50-4671-a4e9-62a007dd37c3",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "jIWmUPwt31JxS2Qc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "candidates",
+          "mode": "list",
+          "cachedResultName": "candidates"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_verified": "={{ true }}",
+            "experience_years": 0,
+            "id": "={{ $json.id }}",
+            "verification_expires_at": "={{ null }}",
+            "verification_token": "={{ null }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vorname",
+              "displayName": "vorname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nachname",
+              "displayName": "nachname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "position",
+              "displayName": "position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_verified",
+              "displayName": "email_verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verification_token",
+              "displayName": "verification_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verification_expires_at",
+              "displayName": "verification_expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "salary",
+              "displayName": "salary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start_date",
+              "displayName": "start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experience_years",
+              "displayName": "experience_years",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cv_url",
+              "displayName": "cv_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1600,
+        -448
+      ],
+      "id": "439f0753-6831-4c60-8b07-00f55aadded9",
+      "name": "Update rows in a table1",
+      "credentials": {
+        "postgres": {
+          "id": "jIWmUPwt31JxS2Qc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.language }}",
+                    "rightValue": "Deutsch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c94911a4-48da-4184-896b-6bf8613c801f"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1047cff5-7aa6-4921-a8b8-7423ceff1890",
+                    "leftValue": "={{ $json.language }}",
+                    "rightValue": "Englisch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d18b8869-78f3-4f08-8ed4-7d18760bc28b",
+                    "leftValue": "={{ $json.language }}",
+                    "rightValue": "Spanisch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -672,
+        -464
+      ],
+      "id": "79934121-c53a-423c-89ad-ee2b4c1595a7",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "fromEmail": "formessages77@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "E-Mail-Adresse erfolgreich bestätigt",
+        "html": "=<p>Hallo {{ $json.vorname }},</p>\n\n<p>Ihre E-Mail-Adresse wurde erfolgreich bestätigt.</p>\n\n<p>Vielen Dank für Ihr Interesse an einer Position bei der Luminar Consulting GmbH.</p>\n\n<p>Bitte füllen Sie nun unser Detailformular aus. Dort können Sie weitere Informationen zu Ihrer Bewerbung ergänzen und Ihren Lebenslauf hochladen:</p>\n\n<p>\n  <a href=\"http://localhost:5173/secondform/details?token={{ $json.verification_token }}\"\n     style=\"padding:12px 20px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;\">\n    Detailformular öffnen\n  </a>\n</p>\n\n<p>Vielen Dank und wir freuen uns auf Ihre Informationen.</p>\n\n<p>Mit freundlichen Grüßen<br>\nLuminar Consulting GmbH</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -368,
+        -512
+      ],
+      "id": "1bd9e147-3e00-4a6e-9239-cbd1776f1171",
+      "name": "Send an Email3",
+      "webhookId": "1bfc9ff4-10fa-4650-8de1-c7745211b662",
+      "credentials": {
+        "smtp": {
+          "id": "vJYypGbAFHeFOvIU",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "abdullayevelmar758@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Email address successfully verified",
+        "html": "=<p>Hello {{ $json.vorname }},</p>\n\n<p>Your email address has been successfully verified.</p>\n\n<p>Thank you for your interest in a position at Luminar Consulting GmbH.</p>\n\n<p>Please complete our detailed application form. There you can provide additional information and upload your CV:</p>\n\n<p>\n  <a href=\"http://localhost:5173/secondform/details?token={{ $json.verification_token }}\"\n     style=\"padding:12px 20px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;\">\n    Open detailed form\n  </a>\n</p>\n\n<p>Thank you. We look forward to receiving your information.</p>\n\n<p>Kind regards,<br>\nLuminar Consulting GmbH</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        -320
+      ],
+      "id": "bd26087e-c2f8-44cd-aab8-70858126829e",
+      "name": "Send an Email4",
+      "webhookId": "31321def-179f-4fe9-a07b-7aaa070cce6c",
+      "credentials": {
+        "smtp": {
+          "id": "vJYypGbAFHeFOvIU",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "abdullayevelmar758@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Correo electrónico confirmado correctamente",
+        "html": "=<p>Hola {{ $json.vorname }},</p>\n\n<p>Su dirección de correo electrónico ha sido confirmada correctamente.</p>\n\n<p>Gracias por su interés en una posición en Luminar Consulting GmbH.</p>\n\n<p>Por favor, complete nuestro formulario detallado. Allí podrá añadir más información y subir su currículum:</p>\n\n<p>\n  <a href=\"http://localhost:5173/secondform/details?token={{ $json.verification_token }}\"\n     style=\"padding:12px 20px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;\">\n    Abrir formulario detallado\n  </a>\n</p>\n\n<p>Gracias. Esperamos recibir su información.</p>\n\n<p>Saludos cordiales,<br>\nLuminar Consulting GmbH</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        -144
+      ],
+      "id": "b246f6d2-26ea-4393-b8da-c4777ea3e24f",
+      "name": "Send an Email5",
+      "webhookId": "0d4cfa2a-b938-4606-8245-74e6746a35f4",
+      "credentials": {
+        "smtp": {
+          "id": "vJYypGbAFHeFOvIU",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const token = Math.random().toString(36).substring(2) \n+ Date.now().toString(36);\n\nconst expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);\n\nreturn [{\n  json:{\n    ...$json,\n    verification_token: token,\n    verification_expires_at: expiresAt.toISOString()\n\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1264,
+        -448
+      ],
+      "id": "361cd5b2-30db-4dea-9feb-d3fd02dbff62",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "candidates",
+          "mode": "list",
+          "cachedResultName": "candidates"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_verified": "={{ true }}",
+            "id": "={{ $json.id }}",
+            "experience_years": 0,
+            "verification_token": "={{ $json.verification_token }}",
+            "verification_expires_at": "={{ $json.verification_expires_at }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vorname",
+              "displayName": "vorname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nachname",
+              "displayName": "nachname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "position",
+              "displayName": "position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_verified",
+              "displayName": "email_verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verification_token",
+              "displayName": "verification_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verification_expires_at",
+              "displayName": "verification_expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "salary",
+              "displayName": "salary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start_date",
+              "displayName": "start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experience_years",
+              "displayName": "experience_years",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cv_url",
+              "displayName": "cv_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -928,
+        -448
+      ],
+      "id": "a3a99ac5-64a3-461d-92f4-b3289ac6bb85",
+      "name": "Update rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "jIWmUPwt31JxS2Qc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "secondform",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3696,
+        64
+      ],
+      "id": "1cd3e3f7-dfe3-494d-8b20-57add2993acc",
+      "name": "Webhook2",
+      "webhookId": "d4d65cdb-8fc3-4744-a205-37d2d39e8ad7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3e6ca73d-ce77-443d-95bd-1d4a741aee5d",
+              "leftValue": "={{ $json.headers.authorization }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3408,
+        64
+      ],
+      "id": "b85092b3-7652-40bb-bb5d-5d82f9470ec0",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"error\": \"Token fehlt\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -3200,
+        272
+      ],
+      "id": "7cdd8d97-6bdd-49d9-a98f-c92a4e32b0b4",
+      "name": "Respond to Webhook5"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS (\n  SELECT 1\n  FROM candidates\n  WHERE verification_token = '{{ $json.headers.authorization }}'\n  AND verification_expires_at > NOW()\n) AS token_exists;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -3072,
+        48
+      ],
+      "id": "571f71cf-27ba-4fbe-aa17-29c015b88c48",
+      "name": "Execute a SQL query2",
+      "credentials": {
+        "postgres": {
+          "id": "jIWmUPwt31JxS2Qc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "candidates",
+          "mode": "list",
+          "cachedResultName": "candidates"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "verification_token",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2016,
+        32
+      ],
+      "id": "540697ef-9c41-41c3-beac-9e69f2cc5683",
+      "name": "Select rows from a table1",
+      "credentials": {
+        "postgres": {
+          "id": "jIWmUPwt31JxS2Qc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"vorname\": \"{{$json.vorname}}\",\n  \"nachname\": \"{{$json.nachname}}\",\n  \"email\": \"{{$json.email}}\",\n  \"telefonnummer\": \"{{$json.phone}}\",\n  \"position\": \"{{$json.position}}\",\n   \"sprache\": \"{{$json.language}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1648,
+        32
+      ],
+      "id": "bff0d8d0-e176-4b04-9f74-a7214f16dec5",
+      "name": "Respond to Webhook7"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aktualisierung",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3792,
+        864
+      ],
+      "id": "74fb4e90-d9e5-4f00-a400-0a5755d4f221",
+      "name": "Webhook3",
+      "webhookId": "0ebc935f-bb41-4249-aae1-94808aed36f3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const requiredFields = [\n  \"vorname\",\n  \"nachname\",\n  \"email\",\n  \"Telefonnummer\",\n   \"arbeit\",\n  \"sprache\",\n  \"Gehaltsvorstellung\",\n  \"Eintrittstermin\",\n  \"Berufserfahrung\",\n  \"Selbstbeschreibung\"\n];\n\nconst missingFields = requiredFields.filter(\n  field => !$json.body[field]\n);\n\nreturn [{\n  json: {\n    ...$json,\n    valid: missingFields.length === 0,\n    missingFields\n  },\n  binary: $binary\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3488,
+        864
+      ],
+      "id": "458c24cd-88c2-4d93-8453-35aeab037514",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "candidates",
+          "mode": "list",
+          "cachedResultName": "candidates"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_verified": "={{ true }}",
+            "experience_years": "={{ $json.body.Berufserfahrung }}",
+            "email": "={{ $json.body.email }}",
+            "vorname": "={{ $json.body.vorname }}",
+            "nachname": "={{ $json.body.nachname }}",
+            "phone": "={{ $json.body.Telefonnummer }}",
+            "position": "={{ $json.body.arbeit }}",
+            "language": "={{ $json.body.sprache }}",
+            "verification_token": "={{ null }}",
+            "verification_expires_at": "={{ null }}",
+            "start_date": "={{ $json.body.Eintrittstermin }}",
+            "description": "={{ $json.body.Selbstbeschreibung }}",
+            "cv_url": "={{ null }}",
+            "salary": "={{ $json.body.Gehaltsvorstellung }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "vorname",
+              "displayName": "vorname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nachname",
+              "displayName": "nachname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "position",
+              "displayName": "position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_verified",
+              "displayName": "email_verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verification_token",
+              "displayName": "verification_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verification_expires_at",
+              "displayName": "verification_expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "salary",
+              "displayName": "salary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start_date",
+              "displayName": "start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experience_years",
+              "displayName": "experience_years",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cv_url",
+              "displayName": "cv_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        496
+      ],
+      "id": "be9ad68e-c342-4e76-b234-40a8d2fcf8c4",
+      "name": "Update rows in a table2",
+      "credentials": {
+        "postgres": {
+          "id": "jIWmUPwt31JxS2Qc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.email }}",
+        "subject": "=Neues Kandidatenprofil erhalten",
+        "message": "=Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie das Kandidatenprofil sowie den Lebenslauf des Bewerbers für die Position {{$json.body.arbeit}}.\n\nKandidatenname: {{$json.body.vorname}} {{$json.body.nachname}}\n\nWir wünschen Ihnen viel Erfolg bei der weiteren Auswahl.\n\nViele Grüße  \nLuminar Consulting GmbH",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {},
+              {
+                "property": "Lebenslauf"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -800,
+        832
+      ],
+      "id": "cfedd589-c9b3-4368-b199-4bf0dd2f1690",
+      "name": "Send a message",
+      "webhookId": "0169d044-57d9-43e0-8e4f-0ad92ddea015",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "373FEiAZLl7aCJlk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1456,
+        832
+      ],
+      "id": "f71316f4-9461-44a9-a455-9b16851ef52b",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    body { font-family: Arial; padding: 40px; color: #333; }\n    h1 { color: #2c3e50; border-bottom: 3px solid #2c3e50; padding-bottom: 10px; }\n    h2 { color: #555; margin-top: 25px; }\n    .field { margin: 8px 0; display: flex; }\n    .label { font-weight: bold; min-width: 200px; }\n    .value { color: #444; }\n    .section { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0; }\n  </style>\n</head>\n<body>\n  <h1>Kandidatenprofil</h1>\n  \n  <h2>Persönliche Daten</h2>\n  <div class=\"section\">\n    <div class=\"field\">\n      <span class=\"label\">Name:</span>\n      <span class=\"value\">{{ $json.vorname }} {{ $json.nachname }}</span>\n    </div>\n    <div class=\"field\">\n      <span class=\"label\">E-Mail:</span>\n      <span class=\"value\">{{ $json.email }}</span>\n    </div>\n    <div class=\"field\">\n      <span class=\"label\">Telefon:</span>\n      <span class=\"value\">{{ $json.phone }}</span>\n    </div>\n  </div>\n\n  <h2>Bewerbungsdetails</h2>\n  <div class=\"section\">\n    <div class=\"field\">\n      <span class=\"label\">Gewünschte Position:</span>\n      <span class=\"value\">{{ $json.position }}</span>\n    </div>\n    <div class=\"field\">\n      <span class=\"label\">Gehaltsvorstellung:</span>\n      <span class=\"value\">{{ $json.salary }} €</span>\n    </div>\n    <div class=\"field\">\n      <span class=\"label\">Eintrittstermin:</span>\n      <span class=\"value\">{{ $json.start_date }}</span>\n    </div>\n    <div class=\"field\">\n      <span class=\"label\">Berufserfahrung:</span>\n      <span class=\"value\">{{ $json.experience_years }} Jahre</span>\n    </div>\n  </div>\n\n  <h2>Selbstbeschreibung</h2>\n  <div class=\"section\">\n    <p>{{ $json.description }}</p>\n  </div>\n\n  <h2>KI-Zusammenfassung</h2>\n  <div class=\"section\">\n    <p>{{ $json.text }}</p>\n  </div>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -2160,
+        528
+      ],
+      "id": "581100c3-f40f-4b96-960d-66b7ec54d2a0",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fbccf44b-e663-4aa2-a8a9-d193a3bafb20",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2656,
+        -928
+      ],
+      "id": "88697bc7-236a-4a5e-8e29-1ed964c71204",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/forms/chromium/convert/html",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "index.html",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1136,
+        832
+      ],
+      "id": "5383490c-d71a-4312-8683-125f0dffb00c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "html",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1936,
+        528
+      ],
+      "id": "b94cd216-7612-4e8e-a894-54cd267a311e",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: $json,\n    binary: {\n      data: {\n        ...$binary.data,\n        fileName: \"index.html\",\n        mimeType: \"text/html\"\n      }\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1696,
+        528
+      ],
+      "id": "9ea5f75e-665c-4afa-8820-be8bffb1727c",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n\"error\": \"Bad Request\",\n \"message\": \"Required fields are missing.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -2464,
+        -720
+      ],
+      "id": "d3fdbee5-9e66-49ae-9cfd-4cca253f8c26",
+      "name": "Respond to Webhook8"
+    },
+    {
+      "parameters": {
+        "jsCode": "const originalData = $node[\"Webhook\"].json.body;\n\nreturn [\n  {\n    json: {\n      ...originalData,\n      email_exists: $json.email_exists\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1968,
+        -960
+      ],
+      "id": "344aaeda-3669-408f-bfdc-83a2997dc7c5",
+      "name": "Code in JavaScript10"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "candidates",
+          "mode": "list",
+          "cachedResultName": "candidates"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "verification_token",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2320,
+        -432
+      ],
+      "id": "ca5fa297-c54d-4dcb-b34e-ec3e9896e850",
+      "name": "Select rows from a table4",
+      "credentials": {
+        "postgres": {
+          "id": "jIWmUPwt31JxS2Qc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "36f257a8-509d-4420-831f-fea0ccb945e5",
+              "leftValue": "={{ $json.token_exists }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2896,
+        -416
+      ],
+      "id": "f31758e0-82b8-41b1-8233-d53d378028d7",
+      "name": "If17"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"Error\": \"Token nicht gefunden\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -2736,
+        -224
+      ],
+      "id": "66ff17ea-71a8-4fc4-92f4-a8eeeb06faf9",
+      "name": "Respond to Webhook18"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      token: $node[\"Webhook1\"].json.query.token\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2640,
+        -432
+      ],
+      "id": "b61d1382-62fb-41a4-8f9c-2653af813a9a",
+      "name": "Code in JavaScript11"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a28d4562-124a-4160-983a-360dfe927e62",
+              "leftValue": "={{ $json.verification_expires_at }}",
+              "rightValue": "={{ $now }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "after"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2000,
+        -432
+      ],
+      "id": "837e03f0-880f-47a3-823b-b32e54afb2cb",
+      "name": "If16"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"Error\": \"Token ist abgelaufen\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1808,
+        -240
+      ],
+      "id": "fc24fbdd-6b3e-4bf5-b254-d3a57263fb24",
+      "name": "Respond to Webhook3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cc5e3b78-5734-4e16-bedf-b102ca5c33cf",
+              "leftValue": "={{ $json.token_exists }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2768,
+        48
+      ],
+      "id": "b00fe758-abce-4fd9-8a25-0087ac0627cd",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"error\": \"User not found or token expired.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -2576,
+        288
+      ],
+      "id": "94d0a66c-d2ca-43fb-8929-8a876b12a214",
+      "name": "Respond to Webhook4"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      token: $node[\"Webhook2\"].json.headers.authorization\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2352,
+        32
+      ],
+      "id": "e054bc49-ee88-485e-ae65-e96e34c3f098",
+      "name": "Code in JavaScript12"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "56099560-3875-415b-8112-127a3ce283cc",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3168,
+        864
+      ],
+      "id": "09c5232d-0539-411c-9f08-ba1168d630d4",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"error\": \"Pflichtfelder fehlen.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -2864,
+        1072
+      ],
+      "id": "418faa4f-9c30-4529-80e6-5228c8f752b7",
+      "name": "Respond to Webhook6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an experienced HR assistant.\n\nCreate a professional candidate summary in German.\n\nRequirements:\n- Use ONLY the information provided below.\n- Do NOT invent, assume, or add any information.\n- Extract the most relevant strengths, skills, motivation, and qualifications from the self description.\n- Mention the candidate's desired position, years of experience, salary expectation, earliest start date, preferred communication language, and contact information.\n- Write in a professional HR style.\n- The summary should be between 80 and 120 words.\n- Return ONLY the final summary. Do not include headings, introductions, bullet points, explanations, or notes.\n\nCandidate Information:\n\nFirst name: {{$json.vorname}}\nLast name: {{$json.nachname}}\nEmail: {{$json.email}}\nPhone: {{$json.phone}}\nPreferred communication language: {{$json.language}}\nDesired position: {{$json.position}}\nSalary expectation: {{$json.salary}}\nEarliest start date: {{$json.start_date}}\nYears of professional experience: {{$json.experience_years}}\n\nSelf description:\n{{$json.description}}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -2752,
+        688
+      ],
+      "id": "61b29421-15b4-49da-8852-ff77e2185c28",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -2256,
+        784
+      ],
+      "id": "536645d8-0964-4f90-a3bd-82afdd31b841",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "rCpJ4aRhk8s9xkLs",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2416,
+        544
+      ],
+      "id": "b33a9ce2-90be-4d55-bbf9-3127aee2de21",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<!DOCTYPE html>\n<html>\n<head>\n<title>E-Mail bestätigt</title>\n</head>\n\n<body>\n<h1>E-Mail erfolgreich bestätigt ✅</h1>\n\n<p>Vielen Dank. Ihre E-Mail-Adresse wurde erfolgreich bestätigt.</p>\n\n<p>Für die nächsten Schritte wurde Ihnen eine weitere E-Mail zugesendet.</p>\n\n<p>Sie können dieses Fenster jetzt schließen.</p>\n\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -176,
+        -560
+      ],
+      "id": "954bca9d-c7cb-45c1-910d-4d5ae5d4055c",
+      "name": "Respond to Webhook9"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<!DOCTYPE html>\n<html>\n<head>\n<title>Email Confirmed</title>\n</head>\n\n<body>\n<h1>Email successfully confirmed ✅</h1>\n\n<p>Thank you. Your email address has been successfully confirmed.</p>\n\n<p>An additional email has been sent to you with the next steps.</p>\n\n<p>You can now close this window.</p>\n\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -96,
+        -320
+      ],
+      "id": "eecda3d3-3d3f-4a00-8cb1-5ea7eddba4db",
+      "name": "Respond to Webhook10"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<!DOCTYPE html>\n<html>\n<head>\n<title>Correo confirmado</title>\n</head>\n\n<body>\n<h1>Correo electrónico confirmado correctamente ✅</h1>\n\n<p>Gracias. Su dirección de correo electrónico ha sido confirmada correctamente.</p>\n\n<p>Le hemos enviado otro correo electrónico con los siguientes pasos.</p>\n\n<p>Ahora puede cerrar esta ventana.</p>\n\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -112,
+        -144
+      ],
+      "id": "30132113-abeb-4d86-b305-5cdc98c73a97",
+      "name": "Respond to Webhook11"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send an Email1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send an Email2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "If17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update rows in a table1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Send an Email3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send an Email4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send an Email5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query2": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select rows from a table1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update rows in a table2": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript10": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email": {
+      "main": [
+        []
+      ]
+    },
+    "Send an Email1": {
+      "main": [
+        []
+      ]
+    },
+    "Select rows from a table4": {
+      "main": [
+        [
+          {
+            "node": "If16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If17": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript11": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If16": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript12",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript12": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook6": {
+      "main": [
+        []
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email5": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6bddb59d-fd4a-4039-b20e-ee16b2354c80",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f93e5d0d6103b8e8dbfd88feea5f3709b184860cf94212bf025ab0394fcd5136"
+  },
+  "nodeGroups": [],
+  "id": "Xpq74ez0QNnr5cft",
+  "tags": []
+}
